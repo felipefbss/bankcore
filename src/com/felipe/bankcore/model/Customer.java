@@ -49,6 +49,10 @@ public class Customer {
         return checkingAccount;
     }
 
+    public SavingsAccount getSavingsAccount() {
+        return savingsAccount;
+    }
+
     /**
      * Retorna a lista de cartões deste cliente.
      */
@@ -101,6 +105,6 @@ public class Customer {
 
     @Override
     public String toString() {
-        return "name: " + getName() + " - " + "ID: " + getId() + " - " + "Cartões: " + getCards().size() + " - " + "total de gastos: R$" + getTotalSpent();
+        return "name: " + getName() + " - " + "ID: " + getId() + " - " + "Cartões: " + getCards().size() + " - " + "total de gastos: " + String.format("R$%.2f", getTotalSpent());
     }
 }
