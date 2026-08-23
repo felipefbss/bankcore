@@ -62,17 +62,19 @@ public abstract class Account {
         Transaction trasacaoEntrada = destinationAccount.deposit(amount);
         trasacaoSaida.setDescription("Transferência enviada para " + destinationAccount.getOwner().getName());
         trasacaoEntrada.setDescription("Transferência recebida de " + getOwner().getName());
-        System.out.println("Transferência no valor de: " + amount + " para o " + destinationAccount.getOwner().getName() + " Realizado com sucesso!");
+        System.out.println("Transferência no valor de: " + String.format("R$%.2f", amount) + " para o " + destinationAccount.getOwner().getName() + " Realizado com sucesso!");
     }
 
     /**
      * Calcula o rendimento da conta e aplica ele diretamente no saldo, via deposit().
      * adiciona uma descrição desse rendimento.
+     * @return o valor do rendimento calculado.
      */
-    public void aplicarRendimento() {
+    public double aplicarRendimento() {
         double rendimento = calcularRendimento();
         Transaction transacaoRendimento = deposit(rendimento);
         transacaoRendimento.setDescription("Rendimento aplicado");
+        return rendimento;
     }
 
     /**
