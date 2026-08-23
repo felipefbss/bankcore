@@ -1,8 +1,7 @@
 package com.felipe.bankcore;
-import com.felipe.bankcore.model.Card;
-import com.felipe.bankcore.model.Customer;
-import com.felipe.bankcore.model.Purchase;
-import com.felipe.bankcore.model.PurchaseValueComparator;
+import com.felipe.bankcore.exception.InsufficientBalanceException;
+import com.felipe.bankcore.exception.SavingsAccountAlreadyExistsException;
+import com.felipe.bankcore.model.*;
 import com.felipe.bankcore.service.Bank;
 
 import java.util.Collections;
@@ -16,7 +15,6 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Bank bank = new Bank();
-
         int option = 1;
 
         while(option != 0){
@@ -31,6 +29,15 @@ public class Main {
             System.out.println("8 - Ver menor compra");
             System.out.println("9 - Ver valor total gasto por cliente");
             System.out.println("10 - Ver limite disponível de um cartão");
+            System.out.println("--- Conta Bancária ---");
+            System.out.println("11 - Ver saldo da conta corrente");
+            System.out.println("12 - Criar conta poupança");
+            System.out.println("13 - Aplicar rendimento na conta corrente");
+            System.out.println("14 - Aplicar rendimento na conta poupança");
+            System.out.println("15 - Fazer uma transferência para outra conta");
+            System.out.println("16 - Ver a lisa de transferências");
+            System.out.println("17 - Depositar em uma conta");
+            System.out.println("18 - Sacar de uma conta");
             System.out.println("0 - Sair");
             option = scanner.nextInt();
             scanner.nextLine();
@@ -260,7 +267,7 @@ public class Main {
                         System.out.println("Este cliente não existe.");
                     }else{
                         double selectedCustomer = customer.getTotalSpent();
-                        System.out.println("Valor total gasto do cliente: R$" + selectedCustomer);
+                        System.out.println("Valor total gasto do cliente: " + formatarMoeda(selectedCustomer));
                     }
                     break;
                 }
@@ -285,8 +292,165 @@ public class Main {
                             if(selectedCard == null){
                                 System.out.println("Cartão não encontrado.");
                             }else{
-                                System.out.println("Limite disponível: R$" + selectedCard.getAvailableLimit());
+                                System.out.println("Limite disponível: " + formatarMoeda(selectedCard.getAvailableLimit()) );
                             }
+                        }
+                    }
+                    break;
+                }
+                case 11: {
+                    System.out.println("Digite o Id do cliente: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine();
+                    Customer customer = bank.findCustomerById(id);
+                    if(customer == null){
+                        System.out.println("Este cliente não existe.");
+                    }else{
+                        System.out.println("Saldo da conta corrente: " + formatarMoeda(customer.getCheckingAccount().getBalance()));
+                    }
+                    break;
+                }
+                case 12: {
+                    System.out.println("Digite o Id do cliente: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine();
+                    Customer customer = bank.findCustomerById(id);
+                    if(customer == null){
+                        System.out.println("Este cliente não existe");
+                    }else{
+                        try {
+                            customer.abrirPoupanca();
+                            System.out.println("Conta poupança criada com sucesso!");
+                        } catch (SavingsAccountAlreadyExistsException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                    break;
+                }
+                case 13: {
+                    System.out.println("Digite o Id do cliente que deseja Aplicar rendimento na conta corrente: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine();
+                    Customer customer = bank.findCustomerById(id);
+                    if(customer == null){
+                        System.out.println("Este cliente não existe");
+                    }else{
+                        double resultadoDoRendimento = customer.getCheckingAccount().aplicarRendimento();
+                        System.out.println("Rendimento aplicado: " + formatarMoeda(resultadoDoRendimento));
+                        System.out.println("Saldo atual: " + formatarMoeda(customer.getCheckingAccount().getBalance()));
+                    }
+                    break;
+                }
+                case 14: {
+                    System.out.println("Digte o Id do cliente que deseja Aplicar rendimento na conta poupança:");
+                    int id = scanner.nextInt();
+                    scanner.nextLine();
+                    Customer customer = bank.findCustomerById(id);
+                    if(customer == null){
+                        System.out.println("Este cliente não existe");
+                    }else if(customer.getSavingsAccount() == null) {
+                        System.out.println("Este cliente ainda não possui conta poupança.");
+                    }else{
+                        double resultadoDoRendimento = customer.getSavingsAccount().aplicarRendimento();
+                        System.out.println("Rendimento aplicado: " + formatarMoeda(resultadoDoRendimento));
+                        System.out.println("Saldo atual: " + formatarMoeda(customer.getSavingsAccount().getBalance()));
+                    }
+                    break;
+                }
+                case 15: {
+                    System.out.println("Digite o Id do cliente que deseja fazer essa transferência: ");
+                    int idOrigem = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.println("Digite o Id do cliente que vai receber essa transferência: ");
+                    int idDestino = scanner.nextInt();
+                    scanner.nextLine();
+                    Customer customer1 = bank.findCustomerById(idOrigem);
+                    Customer customer2 = bank.findCustomerById(idDestino);
+                    if (customer1 == null) {
+                        System.out.println("Este cliente não existe");
+                    } else if (customer2 == null) {
+                        System.out.println("Este cliente não existe");
+                    } else {
+                        Account contaOrigem = escolherConta(customer1, scanner);
+                        Account contaDestino = escolherConta(customer2, scanner);
+                        if (contaOrigem == null || contaDestino == null) {
+                            System.out.println("Uma das contas escolhidas não existe.");
+                        } else {
+                            System.out.println("Qual o valor que deseja transferir ? ");
+                            double amount = scanner.nextDouble();
+
+                            try {
+                                contaOrigem.transfer(contaDestino, amount);
+                            } catch (InsufficientBalanceException e) {
+                                System.out.println(e.getMessage());
+                            }
+                        }
+                        break;
+                    }
+                }
+                case 16: {
+                    System.out.println("Qual o Id do cliente que deseja ver o histórico ?");
+                    int id = scanner.nextInt();
+                    scanner.nextLine();
+                    Customer customer = bank.findCustomerById(id);
+                    if(customer == null){
+                        System.out.println("Este cliente não existe.");
+                    }else {
+                        System.out.println("Qual conta deseja ver a lista de transferências ?");
+                        Account contaEscolhida = escolherConta(customer, scanner);
+                        if(contaEscolhida == null){
+                            System.out.println("Uma das contas escolhidas não existe.");
+                        }else{
+                            for(Transaction transacoes: contaEscolhida.getTransactionList()){
+                                System.out.println(transacoes);
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 17: {
+                    System.out.println("Digite o Id do cliente que deseja fazer um depósito: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine();
+                    Customer customer = bank.findCustomerById(id);
+                    if(customer == null) {
+                        System.out.println("Este cliente não existe.");
+                    }else{
+                        Account conta = escolherConta(customer, scanner);
+                        if(conta == null){
+                            System.out.println("Uma das contas escolhidas não existe.");
+                        }else {
+                            System.out.println("Qual o valor que deseja depositar ?");
+                            double amount = scanner.nextDouble();
+                            scanner.nextLine();
+                            conta.deposit(amount);
+                            System.out.println("Depósito realizado com sucesso!");
+                        }
+                    }
+                    break;
+                }
+                case 18: {
+                    System.out.println("Digite o Id do cliente que deseja fazer um saque: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine();
+                    Customer customer = bank.findCustomerById(id);
+                    if (customer == null) {
+                        System.out.println("Este cliente não existe.");
+                    } else {
+                        Account conta = escolherConta(customer, scanner);
+                        if (conta == null) {
+                            System.out.println("Uma das contas escolhidas não existe.");
+                        } else {
+                            try {
+                                System.out.println("Qual o valor que deseja sacar ?");
+                                double amount = scanner.nextDouble();
+                                scanner.nextLine();
+                                conta.withdraw(amount);
+                                System.out.println("Saque realizado com sucesso!");
+                            }catch (InsufficientBalanceException e){
+                                System.out.println(e.getMessage());
+                            }
+
                         }
                     }
                     break;
@@ -298,5 +462,32 @@ public class Main {
             }
 
         }
+    }
+
+    /**
+     * pergunta ao usuário se ele deseja usar a conta corrente,
+     * ou a poupança do cliente informado.
+     * @param customer o cliente escolhido.
+     * @param scanner o Scanner já em uso na main, reaproveitando para ler a escolha do usuário.
+     * @return uma conta do cliente escolhido.
+     */
+    private static Account escolherConta(Customer customer, Scanner scanner) {
+        System.out.println("Conta corrente ou poupança?");
+        String tipo = scanner.nextLine();
+        if (tipo.equals("corrente")) {
+            return customer.getCheckingAccount();
+        } else {
+            return customer.getSavingsAccount(); // pode ser null, se não tiver
+        }
+    }
+
+    /**
+     * formata a String para mostrar cifrão nos valores,
+     * e para mostrar somente duas casas decimais.
+     * @param valor o valor monetário a ser formatado.
+     * @return A string formatada.
+     */
+    private static String formatarMoeda(double valor) {
+        return String.format("R$%.2f", valor);
     }
 }
