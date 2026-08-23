@@ -55,4 +55,13 @@ public class Transaction {
     public TransactionType getType() {
         return type;
     }
+
+    /**
+     * Representa a transação em formato de texto, para exibição no extrato.
+     */
+    @Override
+    public String toString() {
+        String resultado = getDescription() != null ? getDescription() : "Nenhuma descrição";
+        return "valor: " + getValue() + " - "  + "tipo de transação: " + getType() + " - " + "data: " + getDate() + " - " + "descrição: " + resultado;
+    }
 }
