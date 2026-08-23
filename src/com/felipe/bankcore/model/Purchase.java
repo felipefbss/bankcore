@@ -80,7 +80,7 @@ public class Purchase  implements Comparable<Purchase>{
 
     @Override
     public String toString() {
-        return getDescription() + " - R$" + getValue() + " - " +  getDate() + " - Status: " + getStatus() + " -" + " Números de parcelas: " + getInstallments() + "X" + " de R$" + getValuePerInstallment();
+        return getDescription() + " - " + String.format("R$%.2f", getValue()) + " - " +  getDate() + " - Status: " + getStatus() + " -" + " Números de parcelas: " + getInstallments() + "X" + " de R$" + getValuePerInstallment();
     }
 
     // ordena por data (ordem natural do histórico de compras)
