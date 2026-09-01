@@ -5,6 +5,7 @@ Sistema bancário desenvolvido em Java puro, com foco em orientação a objetos,
 💡 Este projeto começou como um gerenciador de cartões de crédito e evoluiu para um sistema bancário mais completo — o histórico de commits reflete essa evolução real, módulo por módulo.
 
 ![Demonstração do BankCore](assets/demonstracao.png)
+
 📌 Sobre o projeto
 
 O BankCore simula as operações centrais de um banco: gestão de clientes, cartões de crédito, contas correntes e poupanças, transferências entre contas e rendimento sobre o saldo — incluindo integração real com a API do Banco Central do Brasil para calcular a taxa CDI.
@@ -12,6 +13,7 @@ O BankCore simula as operações centrais de um banco: gestão de clientes, cart
 Todo o sistema roda via terminal (CLI), com um menu interativo construído em Java puro, sem frameworks — o próximo passo natural do projeto é evoluir para uma API REST com Spring Boot.
 
 ⚙️ Funcionalidades
+
 Módulo de cartão de crédito
 Cadastro de clientes e cartões
 Registro de compras (à vista ou parceladas), com limite de crédito por cartão
@@ -28,19 +30,24 @@ Extrato completo por conta, com descrição diferenciada para transferências
 Rendimento aplicado de verdade (não apenas simulado):
 Conta poupança: taxa fixa de 0,5% ao mês
 Conta corrente: taxa CDI do dia, obtida em tempo real via API pública do Banco Central
+
 🧠 Conceitos aplicados
+
 Programação orientada a objetos: herança, classes abstratas, polimorfismo (Account como classe-mãe de CheckingAccount e SavingsAccount)
 Coleções: ArrayList para histórico de compras, cartões e transações
 Tratamento de exceções customizadas: InsufficientBalanceException, SavingsAccountAlreadyExistsException, CdiApiException
 Consumo de API REST externa: HttpClient + desserialização de JSON com Gson
 Java Records para modelar a resposta da API do Banco Central
 Javadoc em todas as classes e métodos principais
+
 🔌 API externa utilizada
 
 O rendimento da conta corrente é calculado com base na taxa CDI real, obtida via API de séries temporais do Banco Central do Brasil:
 
 https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1?formato=json
+
 🗂️ Estrutura do projeto
+
 com.felipe.bankcore
 ├── model
 │   ├── Customer, Card, Purchase
@@ -54,6 +61,7 @@ com.felipe.bankcore
 │   ├── SavingsAccountAlreadyExistsException
 │   └── CdiApiException
 └── Main
+
 ▶️ Como executar
 
 Pré-requisitos: JDK 17+ e a biblioteca Gson no classpath.
@@ -63,6 +71,7 @@ Abra o projeto na IntelliJ IDEA (ou outra IDE de sua preferência)
 Certifique-se de que o Gson está adicionado como dependência
 Execute a classe Main
 Navegue pelo menu interativo via terminal
+
 🛣️ Próximos passos
 
 Este projeto é a primeira etapa de um roadmap maior:
