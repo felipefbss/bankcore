@@ -16,13 +16,27 @@ public class FraudDetector {
     private static final double HIGH_VALUE_LIMIT = 5000.0;
 
     /**
-     * Verifica se uam compra é suspeita.
+     * Verifica se uma transação é suspeita.
+     * Delega a verificação ao método que recebe apenas o valor,
+     * mantendo a regra de suspeita em um único lugar.
      *
      * @param transaction transação a ser verificada.
      * @return {@code true} se o valor for maior ou igual ao limite; {@code false} caso contrário.
      */
     public boolean isSuspicious(Transaction transaction) {
-        return transaction.getValue() >= HIGH_VALUE_LIMIT;
+        return this.isSuspicious(transaction.getValue());
+    }
+
+    /**
+     * Verifica se um valor é suspeito, aplicando a regra do limite.
+     * Permite checar uma operação antes de a transação ser criada,
+     * quando só o valor informado está disponível.
+     *
+     * @param value valor da operação a ser verificado.
+     * @return {@code true} se o valor for maior ou igual ao limite; {@code false} caso contrário.
+     */
+    public boolean isSuspicious(double value) {
+        return value >= HIGH_VALUE_LIMIT;
     }
 
     /**
