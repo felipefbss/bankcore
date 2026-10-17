@@ -3,6 +3,7 @@ import com.felipe.bankcore.exception.InsufficientBalanceException;
 import com.felipe.bankcore.exception.SavingsAccountAlreadyExistsException;
 import com.felipe.bankcore.model.*;
 import com.felipe.bankcore.service.Bank;
+import com.felipe.bankcore.service.FraudDetector;
 
 import java.util.Collections;
 import java.util.Scanner;
@@ -15,6 +16,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Bank bank = new Bank();
+        FraudDetector detector = new FraudDetector();
         int option = 1;
 
         while(option != 0){
@@ -445,8 +447,24 @@ public class Main {
                                 System.out.println("Qual o valor que deseja sacar ?");
                                 double amount = scanner.nextDouble();
                                 scanner.nextLine();
-                                conta.withdraw(amount);
-                                System.out.println("Saque realizado com sucesso!");
+                                boolean verificar = detector.isSuspicious(amount);
+                                if(!verificar) {
+                                    conta.withdraw(amount);
+                                    System.out.println("Saque realizado com sucesso!");
+                                } else {
+                                    System.out.println("Este valor está acima do normal, deseja continuar mesmo assim ?");
+                                    System.out.println("Se SIM pressione 1, se NÃO pressione 2.");
+                                    int resultado = scanner.nextInt();
+                                    scanner.nextLine();
+                                    if(resultado == 1) {
+                                        conta.withdraw(amount);
+                                        System.out.println("Saque realizado com sucesso!");
+                                    }else if(resultado == 2) {
+                                        System.out.println("Saque cancelado com sucesso!");
+                                    }else {
+                                        System.out.println("O saque foi cancelado porque o número digitado está incorreto!");
+                                    }
+                                }
                             }catch (InsufficientBalanceException e){
                                 System.out.println(e.getMessage());
                             }
