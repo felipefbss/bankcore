@@ -447,23 +447,9 @@ public class Main {
                                 System.out.println("Qual o valor que deseja sacar ?");
                                 double amount = scanner.nextDouble();
                                 scanner.nextLine();
-                                boolean verificar = detector.isSuspicious(amount);
-                                if(!verificar) {
+                                if (confirmHighValue(amount ,detector ,scanner)) {
                                     conta.withdraw(amount);
                                     System.out.println("Saque realizado com sucesso!");
-                                } else {
-                                    System.out.println("Este valor está acima do normal, deseja continuar mesmo assim ?");
-                                    System.out.println("Se SIM pressione 1, se NÃO pressione 2.");
-                                    int resultado = scanner.nextInt();
-                                    scanner.nextLine();
-                                    if(resultado == 1) {
-                                        conta.withdraw(amount);
-                                        System.out.println("Saque realizado com sucesso!");
-                                    }else if(resultado == 2) {
-                                        System.out.println("Saque cancelado com sucesso!");
-                                    }else {
-                                        System.out.println("O saque foi cancelado porque o número digitado está incorreto!");
-                                    }
                                 }
                             }catch (InsufficientBalanceException e){
                                 System.out.println(e.getMessage());
@@ -474,11 +460,43 @@ public class Main {
                     break;
                 }
                 default: {
-                    System.out.println("Número invalido.");
+                    System.out.println("Número inválido.");
                     break;
                 }
             }
 
+        }
+    }
+
+    /**
+     * Verifica se uma operação pode prosseguir, considerando o valor informado.
+     * Valores normais são liberados sem perguntar nada. Se o valor for considerado
+     * suspeito, pede confirmação ao usuário antes de liberar a operação.
+     *
+     * @param value valor da operação a ser verificado.
+     * @param detector detector de fraude usado para avaliar se o valor é suspeito.
+     * @param scanner leitor usado para receber a resposta do usuário (1 para sim, 2 para não)
+     * @return {@code true} se o valor for normal ou o usuário confirmar a operação;
+     *         {@code false} se o usuário recusar ou digitar uma opção inválida
+     */
+    private static boolean confirmHighValue(double value, FraudDetector detector ,Scanner scanner) {
+        boolean valorSuspeito = detector.isSuspicious(value);
+        if(!valorSuspeito) {
+            return true;
+        } else {
+            System.out.println("Este valor está acima do normal, deseja continuar mesmo assim ?");
+            System.out.println("Se SIM pressione 1, se NÃO pressione 2.");
+            int escolha = scanner.nextInt();
+            scanner.nextLine();
+            if(escolha == 2) {
+                System.out.println("Operação cancelada!");
+                return false;
+            }else if(escolha == 1) {
+                return true;
+            } else {
+                System.out.println("Número incorreto, Operação cancelada.");
+                return false;
+            }
         }
     }
 
