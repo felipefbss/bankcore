@@ -369,9 +369,9 @@ public class Main {
                     Customer customer1 = bank.findCustomerById(idOrigem);
                     Customer customer2 = bank.findCustomerById(idDestino);
                     if (customer1 == null) {
-                        System.out.println("Este cliente não existe");
+                        System.out.println("Cliente de origem não existe");
                     } else if (customer2 == null) {
-                        System.out.println("Este cliente não existe");
+                        System.out.println("Cliente de destino não existe");
                     } else {
                         Account contaOrigem = escolherConta(customer1, scanner);
                         Account contaDestino = escolherConta(customer2, scanner);
@@ -380,15 +380,17 @@ public class Main {
                         } else {
                             System.out.println("Qual o valor que deseja transferir ? ");
                             double amount = scanner.nextDouble();
-
-                            try {
-                                contaOrigem.transfer(contaDestino, amount);
-                            } catch (InsufficientBalanceException e) {
-                                System.out.println(e.getMessage());
+                            scanner.nextLine();
+                            if(confirmHighValue(amount,detector,scanner)) {
+                                try {
+                                    contaOrigem.transfer(contaDestino, amount);
+                                } catch (InsufficientBalanceException e) {
+                                    System.out.println(e.getMessage());
+                                }
                             }
                         }
-                        break;
                     }
+                    break;
                 }
                 case 16: {
                     System.out.println("Qual o Id do cliente que deseja ver o histórico ?");
