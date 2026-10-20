@@ -425,8 +425,10 @@ public class Main {
                             System.out.println("Qual o valor que deseja depositar ?");
                             double amount = scanner.nextDouble();
                             scanner.nextLine();
-                            conta.deposit(amount);
-                            System.out.println("Depósito realizado com sucesso!");
+                            if(confirmHighValue(amount,detector,scanner)) {
+                                conta.deposit(amount);
+                                System.out.println("Depósito realizado com sucesso!");
+                            }
                         }
                     }
                     break;
