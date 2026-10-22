@@ -33,15 +33,15 @@ public abstract class Account {
     }
 
     /**
-     * cria um saque.
-     * @param amount é o valor do saque.
-     * se o valor do saldo for maior que o saque, subtrai o valor do saldo com o valor do saque.
-     * cria uma transação.
-     * é adicionado na lista de transações.
-     * se caso o saldo for menor que o saque, a exception @param InsufficientBalanceException é acionada.
+     * Realiza um saque na conta.
+     * Se o saldo for maior ou igual ao valor do saque, o valor é subtraído do saldo,
+     * uma transação de saque é criada e adicionada à lista de transações.
+     * @param amount valor do saque
+     * @return a transação de saque registrada
+     * @throws InsufficientBalanceException se o saldo for menor que o valor do saque
      */
     public Transaction withdraw(double amount){
-        if( amount < balance){
+        if( amount <= balance){
             balance -= amount;
             Transaction transaction = new Transaction(amount, LocalDate.now(), TransactionType.SAQUE);
             transactionList.add(transaction);

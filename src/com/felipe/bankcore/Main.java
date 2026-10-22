@@ -3,6 +3,7 @@ import com.felipe.bankcore.exception.InsufficientBalanceException;
 import com.felipe.bankcore.exception.SavingsAccountAlreadyExistsException;
 import com.felipe.bankcore.model.*;
 import com.felipe.bankcore.service.Bank;
+import com.felipe.bankcore.service.FraudDetector;
 
 import java.util.Collections;
 import java.util.Scanner;
@@ -15,6 +16,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Bank bank = new Bank();
+        FraudDetector detector = new FraudDetector();
         int option = 1;
 
         while(option != 0){
@@ -367,9 +369,9 @@ public class Main {
                     Customer customer1 = bank.findCustomerById(idOrigem);
                     Customer customer2 = bank.findCustomerById(idDestino);
                     if (customer1 == null) {
-                        System.out.println("Este cliente não existe");
+                        System.out.println("Cliente de origem não existe");
                     } else if (customer2 == null) {
-                        System.out.println("Este cliente não existe");
+                        System.out.println("Cliente de destino não existe");
                     } else {
                         Account contaOrigem = escolherConta(customer1, scanner);
                         Account contaDestino = escolherConta(customer2, scanner);
@@ -378,15 +380,17 @@ public class Main {
                         } else {
                             System.out.println("Qual o valor que deseja transferir ? ");
                             double amount = scanner.nextDouble();
-
-                            try {
-                                contaOrigem.transfer(contaDestino, amount);
-                            } catch (InsufficientBalanceException e) {
-                                System.out.println(e.getMessage());
+                            scanner.nextLine();
+                            if(confirmHighValue(amount,detector,scanner)) {
+                                try {
+                                    contaOrigem.transfer(contaDestino, amount);
+                                } catch (InsufficientBalanceException e) {
+                                    System.out.println(e.getMessage());
+                                }
                             }
                         }
-                        break;
                     }
+                    break;
                 }
                 case 16: {
                     System.out.println("Qual o Id do cliente que deseja ver o histórico ?");
@@ -423,8 +427,10 @@ public class Main {
                             System.out.println("Qual o valor que deseja depositar ?");
                             double amount = scanner.nextDouble();
                             scanner.nextLine();
-                            conta.deposit(amount);
-                            System.out.println("Depósito realizado com sucesso!");
+                            if(confirmHighValue(amount,detector,scanner)) {
+                                conta.deposit(amount);
+                                System.out.println("Depósito realizado com sucesso!");
+                            }
                         }
                     }
                     break;
@@ -445,8 +451,10 @@ public class Main {
                                 System.out.println("Qual o valor que deseja sacar ?");
                                 double amount = scanner.nextDouble();
                                 scanner.nextLine();
-                                conta.withdraw(amount);
-                                System.out.println("Saque realizado com sucesso!");
+                                if (confirmHighValue(amount ,detector ,scanner)) {
+                                    conta.withdraw(amount);
+                                    System.out.println("Saque realizado com sucesso!");
+                                }
                             }catch (InsufficientBalanceException e){
                                 System.out.println(e.getMessage());
                             }
@@ -456,11 +464,43 @@ public class Main {
                     break;
                 }
                 default: {
-                    System.out.println("Número invalido.");
+                    System.out.println("Número inválido.");
                     break;
                 }
             }
 
+        }
+    }
+
+    /**
+     * Verifica se uma operação pode prosseguir, considerando o valor informado.
+     * Valores normais são liberados sem perguntar nada. Se o valor for considerado
+     * suspeito, pede confirmação ao usuário antes de liberar a operação.
+     *
+     * @param value valor da operação a ser verificado.
+     * @param detector detector de fraude usado para avaliar se o valor é suspeito.
+     * @param scanner leitor usado para receber a resposta do usuário (1 para sim, 2 para não)
+     * @return {@code true} se o valor for normal ou o usuário confirmar a operação;
+     *         {@code false} se o usuário recusar ou digitar uma opção inválida
+     */
+    private static boolean confirmHighValue(double value, FraudDetector detector ,Scanner scanner) {
+        boolean valorSuspeito = detector.isSuspicious(value);
+        if(!valorSuspeito) {
+            return true;
+        } else {
+            System.out.println("Este valor está acima do normal, deseja continuar mesmo assim ?");
+            System.out.println("Se SIM pressione 1, se NÃO pressione 2.");
+            int escolha = scanner.nextInt();
+            scanner.nextLine();
+            if(escolha == 2) {
+                System.out.println("Operação cancelada!");
+                return false;
+            }else if(escolha == 1) {
+                return true;
+            } else {
+                System.out.println("Número incorreto, Operação cancelada.");
+                return false;
+            }
         }
     }
 
