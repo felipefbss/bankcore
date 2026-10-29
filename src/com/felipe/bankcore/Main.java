@@ -9,8 +9,9 @@ import java.util.Collections;
 import java.util.Scanner;
 
 /**
- * Ponto de entrada do sistema de cartão de crédito.
- * Exibe o menu interativo e direciona para as operações do sistema.
+ * Ponto de entrada do BankCore.
+ * Exibe o menu interativo e direciona para as operações do sistema,
+ * que incluem o módulo de cartão de crédito e o módulo de contas bancárias.
  */
 public class Main {
     public static void main(String[] args) {
@@ -20,7 +21,8 @@ public class Main {
         int option = 1;
 
         while(option != 0){
-            System.out.println("=== SISTEMA DE CARTÃO DE CRÉDITO ===");
+            System.out.println("=== BANKCORE ===");
+            System.out.println("--- Cartão de Crédito ---");
             System.out.println("1 - Cadastrar cliente");
             System.out.println("2 - Cadastrar cartão para um cliente");
             System.out.println("3 - Cadastrar compra");
@@ -37,7 +39,7 @@ public class Main {
             System.out.println("13 - Aplicar rendimento na conta corrente");
             System.out.println("14 - Aplicar rendimento na conta poupança");
             System.out.println("15 - Fazer uma transferência para outra conta");
-            System.out.println("16 - Ver a lisa de transferências");
+            System.out.println("16 - Ver a lista de transferências");
             System.out.println("17 - Depositar em uma conta");
             System.out.println("18 - Sacar de uma conta");
             System.out.println("0 - Sair");
