@@ -9,8 +9,9 @@ import java.util.Collections;
 import java.util.Scanner;
 
 /**
- * Ponto de entrada do sistema de cartão de crédito.
- * Exibe o menu interativo e direciona para as operações do sistema.
+ * Ponto de entrada do BankCore.
+ * Exibe o menu interativo e direciona para as operações do sistema,
+ * que incluem o módulo de cartão de crédito e o módulo de contas bancárias.
  */
 public class Main {
     public static void main(String[] args) {
