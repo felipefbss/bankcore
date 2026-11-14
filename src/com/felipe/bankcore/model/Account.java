@@ -1,6 +1,8 @@
 package com.felipe.bankcore.model;
 
 import com.felipe.bankcore.exception.InsufficientBalanceException;
+import com.felipe.bankcore.exception.InvalidAmountException;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +21,18 @@ public abstract class Account {
     public abstract double calcularRendimento();
 
     /**
-     * cria um depósito
+     * realiza um depósito na conta.
+     * Se o valor for maior que zero, ele é somado ao saldo, uma transação de depósito
+     * é criada e adicionada à lista de transações.
+     *
      * @param amount é o valor do depósito.
-     * soma o valor do saldo com o valor do depósito.
-     * cria uma transação.
-     * é adicionado na lista de transações.
+     * @return a transação de depósito registrada.
+     * @throws InvalidAmountException se o valor for menor ou igual a zero.
      */
     public Transaction deposit(double amount){
+        if(amount <= 0) {
+            throw new InvalidAmountException("O valor deve ser maior do que zero!");
+        }
         balance += amount;
         Transaction transaction = new Transaction(amount, LocalDate.now(), TransactionType.DEPOSITO);
         transactionList.add(transaction);
@@ -36,11 +43,16 @@ public abstract class Account {
      * Realiza um saque na conta.
      * Se o saldo for maior ou igual ao valor do saque, o valor é subtraído do saldo,
      * uma transação de saque é criada e adicionada à lista de transações.
+     *
      * @param amount valor do saque
      * @return a transação de saque registrada
-     * @throws InsufficientBalanceException se o saldo for menor que o valor do saque
+     * @throws InsufficientBalanceException se o saldo for menor que o valor do saque.
+     * @throws InvalidAmountException se o valor for menor ou igual a zero.
      */
     public Transaction withdraw(double amount){
+        if(amount <= 0) {
+            throw new InvalidAmountException("O valor deve ser maior do que zero!");
+        }
         if( amount <= balance){
             balance -= amount;
             Transaction transaction = new Transaction(amount, LocalDate.now(), TransactionType.SAQUE);
@@ -54,6 +66,7 @@ public abstract class Account {
     /**
      * faz uma transferência de uma conta para a outra,
      * reaproveitando os métodos Withdraw e deposit para entrada e saída.
+     *
      * @param destinationAccount a conta que vai receber o depósito.
      * @param amount o valor da transferência
      */

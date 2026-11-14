@@ -1,5 +1,6 @@
 package com.felipe.bankcore;
 import com.felipe.bankcore.exception.InsufficientBalanceException;
+import com.felipe.bankcore.exception.InvalidAmountException;
 import com.felipe.bankcore.exception.SavingsAccountAlreadyExistsException;
 import com.felipe.bankcore.model.*;
 import com.felipe.bankcore.service.Bank;
@@ -388,6 +389,8 @@ public class Main {
                                     contaOrigem.transfer(contaDestino, amount);
                                 } catch (InsufficientBalanceException e) {
                                     System.out.println(e.getMessage());
+                                } catch (InvalidAmountException e) {
+                                    System.out.println(e.getMessage());
                                 }
                             }
                         }
@@ -429,9 +432,13 @@ public class Main {
                             System.out.println("Qual o valor que deseja depositar ?");
                             double amount = scanner.nextDouble();
                             scanner.nextLine();
-                            if(confirmHighValue(amount,detector,scanner)) {
-                                conta.deposit(amount);
-                                System.out.println("Depósito realizado com sucesso!");
+                            try {
+                                if (confirmHighValue(amount, detector, scanner)) {
+                                    conta.deposit(amount);
+                                    System.out.println("Depósito realizado com sucesso!");
+                                }
+                            } catch (InvalidAmountException e) {
+                                System.out.println(e.getMessage());
                             }
                         }
                     }
@@ -459,8 +466,9 @@ public class Main {
                                 }
                             }catch (InsufficientBalanceException e){
                                 System.out.println(e.getMessage());
+                            } catch (InvalidAmountException e) {
+                                System.out.println(e.getMessage());
                             }
-
                         }
                     }
                     break;
