@@ -12,7 +12,7 @@ Sistema bancário desenvolvido em **Java puro**, com foco em orientação a obje
 
 O BankCore simula o **sistema interno (back-office) de um banco**: a camada que processa operações como gestão de clientes, cartões de crédito, contas correntes e poupanças, transferências entre contas e rendimento sobre o saldo — incluindo integração real com a API do Banco Central do Brasil para obter a taxa CDI.
 
-Todo o sistema roda via terminal (CLI), com um menu interativo construído em Java puro, sem frameworks. O próximo passo do projeto é evoluí-lo para uma **API REST com Spring Boot**, mantendo a lógica de negócio já construída (veja o [roadmap](#️-próximos-passos)).
+Todo o sistema roda via terminal (CLI), com um menu interativo construído em Java puro, sem frameworks. O próximo passo do projeto é evoluí-lo para uma **API REST com Spring Boot**, mantendo a lógica de negócio já construída (veja a seção **Próximos passos**).
 
 ## ⚙️ Funcionalidades
 
@@ -27,27 +27,36 @@ Todo o sistema roda via terminal (CLI), com um menu interativo construído em Ja
 ### Módulo bancário
 - Toda conta é criada automaticamente com uma conta corrente, vinculada ao cliente
 - Abertura opcional de conta poupança
-- Depósitos e saques, com validação de saldo insuficiente
+- Depósitos e saques, com validação de saldo insuficiente e de valores inválidos (zero ou negativos)
 - Transferências entre contas (mesma instituição), reaproveitando a lógica de depósito/saque
 - Extrato completo por conta, com descrição diferenciada para transferências
 - Rendimento aplicado de verdade (não apenas simulado):
-    - **Conta poupança:** taxa fixa de 0,5% ao mês
-    - **Conta corrente:** taxa CDI do dia, obtida em tempo real via API pública do Banco Central
+  - **Conta poupança:** taxa fixa de 0,5% ao mês
+  - **Conta corrente:** taxa CDI do dia, obtida em tempo real via API pública do Banco Central
 
 ### Detecção de transações suspeitas
 - Depósitos, saques e transferências com valor **igual ou maior que R$ 5.000,00** são sinalizados como suspeitos
-- Antes de concluir a operação, o sistema pede confirmação (1 - sim, 2 - não); se o usuário recusar ou digitar uma opção inválida, a operação é cancelada
+- Antes de concluir a operação, o sistema pede confirmação; se o usuário recusar ou digitar uma opção inválida, a operação é cancelada:
+
+```
+Qual o valor que deseja sacar ?
+6000
+Este valor está acima do normal, deseja continuar mesmo assim ?
+Se SIM pressione 1, se NÃO pressione 2.
+```
+
+- Uma opção do menu lista as transações suspeitas de uma conta, filtradas com Stream API
 - A regra fica centralizada na classe `FraudDetector` (Detector de Fraude), com o limite definido como constante
-- A classe também filtra uma lista de transações e devolve apenas as suspeitas, usando Stream API (ainda não exposto no menu)
 - As compras no cartão de crédito seguem a regra própria de aprovação por limite e não passam por essa confirmação
 
 ## 🧠 Conceitos aplicados
 
 - **Programação orientada a objetos:** herança, classes abstratas e polimorfismo (`Account` como classe-mãe de `CheckingAccount` e `SavingsAccount`)
-- **Sobrecarga de métodos (*overloading*):** `isSuspicious(Transaction)` e `isSuspicious(double)`, com a regra de negócio em um único lugar
 - **Stream API:** `filter` e `toList` para filtrar transações suspeitas
+- **Sobrecarga de métodos (*overloading*):** `isSuspicious(Transaction)` e `isSuspicious(double)`, com a regra de negócio em um único lugar
 - **Coleções:** `ArrayList` para histórico de compras, cartões e transações
-- **Tratamento de exceções customizadas:** `InsufficientBalanceException`, `SavingsAccountAlreadyExistsException`, `CdiApiException`
+- **Tratamento de exceções customizadas:** `InsufficientBalanceException`, `InvalidAmountException`, `SavingsAccountAlreadyExistsException`, `CdiApiException`
+- **Cláusulas de guarda (*guard clauses*):** valores inválidos são rejeitados no início de `deposit` e `withdraw`, protegendo qualquer chamador
 - **Consumo de API REST externa:** `HttpClient` + desserialização de JSON com Gson
 - **Java Records** para modelar a resposta da API do Banco Central
 - **Refatoração:** método auxiliar `confirmHighValue`, reaproveitado em depósito, saque e transferência
@@ -76,6 +85,7 @@ com.felipe.bankcore
 │   └── FraudDetector
 ├── exception
 │   ├── InsufficientBalanceException
+│   ├── InvalidAmountException
 │   ├── SavingsAccountAlreadyExistsException
 │   └── CdiApiException
 └── Main
@@ -100,19 +110,16 @@ com.felipe.bankcore
 
 Este projeto é a primeira etapa de um roadmap maior:
 
-- ✅ **BankCore CLI** — Java puro, com detecção de transações suspeitas por valor alto
-- 🔜 **Melhorias no CLI**
-    - Validação de valores negativos e zero em depósitos e saques
-    - Regra de frequência anômala (vários saques em curto intervalo)
-    - Opção de menu para listar as transações suspeitas de uma conta
-- 🔜 **BankCore API (Spring Boot)** — evolução deste mesmo projeto para uma API REST, reaproveitando as classes de `model` e `service`. Exemplos de endpoints previstos:
+- ✅ **BankCore CLI** — Java puro, com detecção de transações suspeitas, confirmação de valores altos e validação de valores inválidos
+- 🔜 **BankCore API** — evolução deste mesmo projeto, reaproveitando as classes de `model` e `service`. Etapas previstas (ordem a definir):
+  - **API REST com Spring Boot** — endpoints previstos:
     - `POST /customers` — cadastrar cliente
     - `POST /accounts/{id}/deposit` — depositar
     - `POST /accounts/{id}/withdraw` — sacar
     - `POST /accounts/{id}/transfer` — transferir
     - `GET /accounts/{id}/statement` — consultar extrato
     - `POST /customers/{id}/savings-account` — abrir conta poupança
-- 🔜 **Persistência** — Spring Data JPA com MySQL, substituindo as listas em memória (incluindo o mapeamento da hierarquia de `Account`)
+  - **Persistência com Spring Data JPA e MySQL** — substituindo as listas em memória
 - 🔜 **FinanceTrack API** — projeto independente de controle financeiro, consumindo API pública de câmbio
 
 ## 👤 Autor
