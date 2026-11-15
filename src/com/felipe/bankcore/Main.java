@@ -7,6 +7,7 @@ import com.felipe.bankcore.service.Bank;
 import com.felipe.bankcore.service.FraudDetector;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -43,6 +44,7 @@ public class Main {
             System.out.println("16 - Ver a lista de transferências");
             System.out.println("17 - Depositar em uma conta");
             System.out.println("18 - Sacar de uma conta");
+            System.out.println("19 - Ver transações suspeitas da conta");
             System.out.println("0 - Sair");
             option = scanner.nextInt();
             scanner.nextLine();
@@ -468,6 +470,30 @@ public class Main {
                                 System.out.println(e.getMessage());
                             } catch (InvalidAmountException e) {
                                 System.out.println(e.getMessage());
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 19: {
+                    System.out.println("Digite o Id do cliente que deseja visualizar a lista de transações suspeitas");
+                    int id = scanner.nextInt();
+                    scanner.nextLine();
+                    Customer customer = bank.findCustomerById(id);
+                    if(customer == null) {
+                        System.out.println("Este cliente não existe.");
+                    }else {
+                        Account conta = escolherConta(customer,scanner);
+                        if(conta == null) {
+                            System.out.println("Uma das contas escolhidas não existe.");
+                        } else {
+                            List<Transaction> suspeitas = detector.detect(conta.getTransactionList());
+                            if(suspeitas.isEmpty()) {
+                                System.out.println("Nenhuma transação suspeita encontrada.");
+                            } else {
+                                for(Transaction transacao: suspeitas) {
+                                    System.out.println(transacao);
+                                }
                             }
                         }
                     }
